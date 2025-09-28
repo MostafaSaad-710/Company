@@ -51,4 +51,8 @@
         <input type="submit" value="Delete" class="btn btn-primary">
         <a asp-action="Index" class="btn btn-light">Back to List</a>
     </div>
+    <div class="my-3">
+        <label asp-for="Department" class="col-form-label"></label>
+        <input asp-for="Department.Name" class="form-check" readonly />
+    </div>
 </form>

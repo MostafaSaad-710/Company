@@ -8,19 +8,36 @@ namespace Company.G01.PL.Controllers
     public class EmployeeController : Controller
     {
         private readonly IEmployeeRepository _employeeRepsitory;
-        public EmployeeController(IEmployeeRepository employeeRepository)
+        private readonly IDepartmentRepository _departmentRepository;
+        public EmployeeController(IEmployeeRepository employeeRepository , IDepartmentRepository departmentRepository)
         {
             _employeeRepsitory = employeeRepository;
+            _departmentRepository = departmentRepository;
         }
         [HttpGet]
         public IActionResult Index()
         {
             var employee = _employeeRepsitory.GetAll();
+            //Memory of view is a dictionary
+            // To access on this dictionary and add date other than the data sent by model 
+            // i can it by 3 property we inhiret it from contoller
+
+            ////1. Viewdate : Transfer Extre Information from controller (Action) To View
+            ////ViewData["Message"] = "Hello From ViewDate"; // i Do Set
+
+            ////2. ViewBag : Transfer Extre Information from controller (Action) To View
+            //ViewBag.Message = "Hello From ViewBag";
+
+            //3. TempDate
+
+
             return View(employee);
         }
         [HttpGet]
         public IActionResult Create()
         {
+            var departments = _departmentRepository.GetAll();
+            ViewData["departments"] = departments;
             return View();
         }
         [HttpPost]
@@ -39,11 +56,13 @@ namespace Company.G01.PL.Controllers
                     IsActive = model.IsActive,
                     IsDelete = model.IsDelete,
                     CreatedAt = model.CreateAt,
-                    HiringDate = model.HiringDate
+                    HiringDate = model.HiringDate,
+                    DepartmentId = model.DepartmentId
                 };
                 var count = _employeeRepsitory.Add(employee);
                 if (count > 0)
                 {
+                    TempData["Message"] = "Employee is Created";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -62,12 +81,15 @@ namespace Company.G01.PL.Controllers
 
         public IActionResult Edit(int? id)
         {
+            var departments = _departmentRepository.GetAll();
+            ViewData["departments"] = departments;
+
             if (id is null) return BadRequest("Invalid Id");
             var employee = _employeeRepsitory.Get(id.Value);
             if (employee is null) return NotFound(new { StatusCode = 404, Message = $"Department with id:{id} Not Found" });
             var employeeDto = new CreateEmployeeDto()
             {
-              
+
                 Name = employee.Name,
                 Age = employee.Age,
                 Address = employee.Address,
@@ -77,7 +99,10 @@ namespace Company.G01.PL.Controllers
                 IsActive = employee.IsActive,
                 IsDelete = employee.IsDelete,
                 CreateAt = employee.CreatedAt,
-                HiringDate = employee.HiringDate
+                HiringDate = employee.HiringDate,
+                DepartmentId = employee.DepartmentId,
+                
+                
             };
             return View(employeeDto);
         }
