@@ -1,4 +1,5 @@
-﻿using Company.BLL.Interfaces;
+﻿using AutoMapper;
+using Company.BLL.Interfaces;
 using Company.DAL.Models;
 using Company.G01.PL.Dtos;
 using Microsoft.AspNetCore.Mvc;
@@ -8,16 +9,33 @@ namespace Company.G01.PL.Controllers
     public class EmployeeController : Controller
     {
         private readonly IEmployeeRepository _employeeRepsitory;
-        private readonly IDepartmentRepository _departmentRepository;
-        public EmployeeController(IEmployeeRepository employeeRepository , IDepartmentRepository departmentRepository)
+        //private readonly IDepartmentRepository _departmentRepository;
+        private readonly IMapper _mapper;
+        public EmployeeController(
+            IEmployeeRepository employeeRepository,
+            //IDepartmentRepository departmentRepository,
+            IMapper mapper
+            
+            )
         {
             _employeeRepsitory = employeeRepository;
-            _departmentRepository = departmentRepository;
+            //_departmentRepository = departmentRepository;
+            _mapper = mapper;
+             
         }
+
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string? SearchInput)
         {
-            var employee = _employeeRepsitory.GetAll();
+            IEnumerable<Employee> employee;
+            if(string.IsNullOrEmpty(SearchInput))
+            {
+                employee = _employeeRepsitory.GetAll();
+            }
+            else
+            {
+                employee = _employeeRepsitory.GetByName(SearchInput);
+            }
             //Memory of view is a dictionary
             // To access on this dictionary and add date other than the data sent by model 
             // i can it by 3 property we inhiret it from contoller
@@ -36,8 +54,8 @@ namespace Company.G01.PL.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var departments = _departmentRepository.GetAll();
-            ViewData["departments"] = departments;
+            //var departments = _departmentRepository.GetAll();
+            //ViewData["departments"] = departments;
             return View();
         }
         [HttpPost]
@@ -45,20 +63,22 @@ namespace Company.G01.PL.Controllers
         {
             if (ModelState.IsValid)
             {
-                var employee = new Employee()
-                {
-                    Name = model.Name,
-                    Age = model.Age,
-                    Address = model.Address,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    Salary = model.Salary,
-                    IsActive = model.IsActive,
-                    IsDelete = model.IsDelete,
-                    CreatedAt = model.CreateAt,
-                    HiringDate = model.HiringDate,
-                    DepartmentId = model.DepartmentId
-                };
+                // Manual Mapping
+                //var employee = new Employee()
+                //{
+                //    Name = model.Name,
+                //    Age = model.Age,
+                //    Address = model.Address,
+                //    Email = model.Email,
+                //    Phone = model.Phone,
+                //    Salary = model.Salary,
+                //    IsActive = model.IsActive,
+                //    IsDelete = model.IsDelete,
+                //    CreatedAt = model.CreatedAt,
+                //    HiringDate = model.HiringDate,
+                //    DepartmentId = model.DepartmentId
+                //};
+                var employee = _mapper.Map<Employee>(model);
                 var count = _employeeRepsitory.Add(employee);
                 if (count > 0)
                 {
@@ -81,8 +101,8 @@ namespace Company.G01.PL.Controllers
 
         public IActionResult Edit(int? id)
         {
-            var departments = _departmentRepository.GetAll();
-            ViewData["departments"] = departments;
+            //var departments = _departmentRepository.GetAll();
+            //ViewData["departments"] = departments;
 
             if (id is null) return BadRequest("Invalid Id");
             var employee = _employeeRepsitory.Get(id.Value);
@@ -98,7 +118,7 @@ namespace Company.G01.PL.Controllers
                 Salary = employee.Salary,
                 IsActive = employee.IsActive,
                 IsDelete = employee.IsDelete,
-                CreateAt = employee.CreatedAt,
+                CreatedAt = employee.CreatedAt,
                 HiringDate = employee.HiringDate,
                 DepartmentId = employee.DepartmentId,
                 
@@ -124,7 +144,7 @@ namespace Company.G01.PL.Controllers
                     Salary = model.Salary,
                     IsActive = model.IsActive,
                     IsDelete = model.IsDelete,
-                    CreatedAt = model.CreateAt,
+                    CreatedAt = model.CreatedAt,
                     HiringDate = model.HiringDate
                 };
                 var count = _employeeRepsitory.Update(employee);

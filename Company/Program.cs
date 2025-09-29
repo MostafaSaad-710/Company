@@ -1,7 +1,10 @@
 using Company.BLL.Interfaces;
 using Company.BLL.Repositories;
 using Company.DAL.Data.Contexts;
+using Company.Mapping;
+using Company.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Company.G01.PL
@@ -17,9 +20,23 @@ namespace Company.G01.PL
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepsitory>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             builder.Services.AddDbContext<CompanyDbContext>(options =>
-     options.UseSqlServer(
-         builder.Configuration.GetConnectionString("DefaultConnection")
-     ));
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")
+            ));
+
+            builder.Services.AddAutoMapper(typeof(EmployeeProfile));
+            //builder.Services.AddAutoMapper(M => M.AddProfile(new EmployeeProfile()));
+
+
+
+            // Life Time
+            //builder.Services.AddScoped();     // Create Object Life Time Per Request – UnReachable Object
+            //builder.Services.AddTransient();  // Create Object Life Time Per Operation
+            //builder.Services.AddSingleton();  // Create Object Life Timer Per App
+
+            builder.Services.AddScoped<IScopedService, ScopedService>();  // Per Request
+            builder.Services.AddTransient<ITransentService, TransentService>(); //Per Operation
+            builder.Services.AddSingleton<ISingletolService, SingletolService>(); //Per App
 
 
             var app = builder.Build();
