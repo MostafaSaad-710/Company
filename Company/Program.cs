@@ -1,3 +1,4 @@
+using Company.BLL;
 using Company.BLL.Interfaces;
 using Company.BLL.Repositories;
 using Company.DAL.Data.Contexts;
@@ -17,8 +18,12 @@ namespace Company.G01.PL
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddScoped<IDepartmentRepository, DepartmentRepsitory>();
-            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+            //builder.Services.AddScoped<IDepartmentRepository, DepartmentRepsitory>();
+            //builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+            builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
+
             builder.Services.AddDbContext<CompanyDbContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")

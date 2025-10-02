@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace Company.DAL.Models
         public DateTime HiringDate { get; set; }
         public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
+        public string? ImageName { get; set; }
 
     }
 }
