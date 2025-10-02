@@ -30,5 +30,8 @@ namespace Company.G01.PL.Dtos
 
         [DisplayName("Department")]
         public int? DepartmentId { get; set; }
+
+
+
     }
 }

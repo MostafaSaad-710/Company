@@ -9,9 +9,10 @@ namespace Company.Mapping
         // CLR
         public EmployeeProfile() 
         {
-            CreateMap<CreateEmployeeDto, Employee>()
-                .ForMember(d => d.Name , o => o.MapFrom(s => s.Name)); // We need this when the property names are different between the two classes in the mapping
+            CreateMap<CreateEmployeeDto, Employee>();
+                //.ForMember(d => d.Name , o => o.MapFrom(s => s.Name));//  We need this when the property names are different between the two classes in the mapping
             CreateMap<Employee, CreateEmployeeDto>();
+                //.ForMember(d => d.DepartmentName , o => o.MapFrom(s => s.Department.Name));
         }
     }
 }

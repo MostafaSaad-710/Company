@@ -120,8 +120,8 @@ namespace Company.G01.PL.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete([FromRoute] int id, Department department)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 if (id != department.Id) return BadRequest();
 
                 var count = _departmentRepsitory.Delete(department);
@@ -130,7 +130,7 @@ namespace Company.G01.PL.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-            }
+            //}
             return View(department);
 
         }

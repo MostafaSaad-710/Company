@@ -9,17 +9,17 @@ namespace Company.G01.PL.Controllers
     public class EmployeeController : Controller
     {
         private readonly IEmployeeRepository _employeeRepsitory;
-        //private readonly IDepartmentRepository _departmentRepository;
+        private readonly IDepartmentRepository _departmentRepository;
         private readonly IMapper _mapper;
         public EmployeeController(
             IEmployeeRepository employeeRepository,
-            //IDepartmentRepository departmentRepository,
+            IDepartmentRepository departmentRepository,
             IMapper mapper
             
             )
         {
             _employeeRepsitory = employeeRepository;
-            //_departmentRepository = departmentRepository;
+            _departmentRepository = departmentRepository;
             _mapper = mapper;
              
         }
@@ -54,8 +54,8 @@ namespace Company.G01.PL.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            //var departments = _departmentRepository.GetAll();
-            //ViewData["departments"] = departments;
+            var departments = _departmentRepository.GetAll();
+            ViewData["departments"] = departments;
             return View();
         }
         [HttpPost]
@@ -79,6 +79,7 @@ namespace Company.G01.PL.Controllers
                 //    DepartmentId = model.DepartmentId
                 //};
                 var employee = _mapper.Map<Employee>(model);
+
                 var count = _employeeRepsitory.Add(employee);
                 if (count > 0)
                 {
@@ -93,8 +94,12 @@ namespace Company.G01.PL.Controllers
         public IActionResult Details(int? id, string ViewName = "Details")
         {
             if (id is null) return BadRequest("Invalid Id");
+
             var employee = _employeeRepsitory.Get(id.Value);
             if (employee is null) return NotFound(new { StatusCode = 404, Message = $"Employee with id:{id} Not Found" });
+
+             
+
             return View(ViewName, employee);
         }
         [HttpGet]
@@ -107,23 +112,24 @@ namespace Company.G01.PL.Controllers
             if (id is null) return BadRequest("Invalid Id");
             var employee = _employeeRepsitory.Get(id.Value);
             if (employee is null) return NotFound(new { StatusCode = 404, Message = $"Department with id:{id} Not Found" });
-            var employeeDto = new CreateEmployeeDto()
-            {
+            //var employeeDto = new CreateEmployeeDto()
+            //{
 
-                Name = employee.Name,
-                Age = employee.Age,
-                Address = employee.Address,
-                Email = employee.Email,
-                Phone = employee.Phone,
-                Salary = employee.Salary,
-                IsActive = employee.IsActive,
-                IsDelete = employee.IsDelete,
-                CreatedAt = employee.CreatedAt,
-                HiringDate = employee.HiringDate,
-                DepartmentId = employee.DepartmentId,
-                
-                
-            };
+            //    Name = employee.Name,
+            //    Age = employee.Age,
+            //    Address = employee.Address,
+            //    Email = employee.Email,
+            //    Phone = employee.Phone,
+            //    Salary = employee.Salary,
+            //    IsActive = employee.IsActive,
+            //    IsDelete = employee.IsDelete,
+            //    CreatedAt = employee.CreatedAt,
+            //    HiringDate = employee.HiringDate,
+            //    DepartmentId = employee.DepartmentId,
+            //};
+
+            var employeeDto = _mapper.Map<CreateEmployeeDto>(employee);
+
             return View(employeeDto);
         }
         [HttpPost]
@@ -132,21 +138,10 @@ namespace Company.G01.PL.Controllers
         {
             if (ModelState.IsValid)
             {
-                // if (id != employee.Id) return BadRequest();
-                var employee = new Employee()
-                {
-                    Id = id,
-                    Name = model.Name,
-                    Age = model.Age,
-                    Address = model.Address,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    Salary = model.Salary,
-                    IsActive = model.IsActive,
-                    IsDelete = model.IsDelete,
-                    CreatedAt = model.CreatedAt,
-                    HiringDate = model.HiringDate
-                };
+               
+
+                var employee = _mapper.Map<Employee>(model);
+                employee.Id = id;
                 var count = _employeeRepsitory.Update(employee);
                 if (count > 0)
                 {
