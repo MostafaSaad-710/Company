@@ -23,14 +23,16 @@ namespace Company.BLL
             DepartmentRepository = new DepartmentRepsitory(_context);
         }
 
-        public int Complete()
-        {
-            return _context.SaveChanges();
-        }
+         
 
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        public int Complete()
+        {
+            return _context.SaveChanges();
         }
     }
 }

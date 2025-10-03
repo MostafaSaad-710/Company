@@ -2,7 +2,9 @@
 using Company.BLL.Interfaces;
 using Company.DAL.Models;
 using Company.G01.PL.Dtos;
+using Company.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Company.G01.PL.Controllers
 {
@@ -27,16 +29,16 @@ namespace Company.G01.PL.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(string? SearchInput)
+        public async Task<IActionResult> Index(string? SearchInput)
         {
             IEnumerable<Employee> employee;
             if(string.IsNullOrEmpty(SearchInput))
             {
-                employee = _unitOfWork.EmployeeRepository.GetAll();
+                employee = await _unitOfWork.EmployeeRepository.GetAllAsync();
             }
             else
             {
-                employee = _unitOfWork.EmployeeRepository.GetByName(SearchInput);
+                employee = await _unitOfWork.EmployeeRepository.GetByNameAsync(SearchInput);
             }
             //Memory of view is a dictionary
             // To access on this dictionary and add date other than the data sent by model 
@@ -54,35 +56,25 @@ namespace Company.G01.PL.Controllers
             return View(employee);
         }
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var departments = _unitOfWork.DepartmentRepository.GetAll();
+            var departments = await _unitOfWork.DepartmentRepository.GetAllAsync();
             ViewData["departments"] = departments;
             return View();
         }
         [HttpPost]
-        public IActionResult Create(CreateEmployeeDto model)
+        public async Task<IActionResult> Create(CreateEmployeeDto model)
         {
             if (ModelState.IsValid)
             {
-                // Manual Mapping
-                //var employee = new Employee()
-                //{
-                //    Name = model.Name,
-                //    Age = model.Age,
-                //    Address = model.Address,
-                //    Email = model.Email,
-                //    Phone = model.Phone,
-                //    Salary = model.Salary,
-                //    IsActive = model.IsActive,
-                //    IsDelete = model.IsDelete,
-                //    CreatedAt = model.CreatedAt,
-                //    HiringDate = model.HiringDate,
-                //    DepartmentId = model.DepartmentId
-                //};
+                if (model.Image != null)
+                {
+                    model.ImageName = DocumentSettings.UplaodFile(model.Image, "images");
+                }
+
                 var employee = _mapper.Map<Employee>(model);
 
-                /*var count =*/ _unitOfWork.EmployeeRepository.Add(employee);
+                /*var count =*/ await _unitOfWork.EmployeeRepository.AddAsync(employee);
                 var count = _unitOfWork.Complete();
                 if (count > 0)
                 {
@@ -94,11 +86,11 @@ namespace Company.G01.PL.Controllers
 
         }
         [HttpGet]
-        public IActionResult Details(int? id, string ViewName = "Details")
+        public async Task<IActionResult> Details(int? id, string ViewName = "Details")
         {
             if (id is null) return BadRequest("Invalid Id");
 
-            var employee = _unitOfWork.EmployeeRepository.Get(id.Value);
+            var employee = await _unitOfWork.EmployeeRepository.GetAsync(id.Value);
             if (employee is null) return NotFound(new { StatusCode = 404, Message = $"Employee with id:{id} Not Found" });
 
              
@@ -107,13 +99,13 @@ namespace Company.G01.PL.Controllers
         }
         [HttpGet]
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             //var departments = _departmentRepository.GetAll();
             //ViewData["departments"] = departments;
 
             if (id is null) return BadRequest("Invalid Id");
-            var employee = _unitOfWork.EmployeeRepository.Get(id.Value);
+            var employee =await _unitOfWork.EmployeeRepository.GetAsync(id.Value);
             if (employee is null) return NotFound(new { StatusCode = 404, Message = $"Department with id:{id} Not Found" });
             //var employeeDto = new CreateEmployeeDto()
             //{
@@ -141,7 +133,15 @@ namespace Company.G01.PL.Controllers
         {
             if (ModelState.IsValid)
             {
-               
+                if(model.ImageName is not null && model.Image is not null)
+                {
+                    DocumentSettings.DeleteFile(model.ImageName, "images");
+                }
+                
+                if(model.Image is not null)
+                {
+                    model.ImageName = DocumentSettings.UplaodFile(model.Image, "images");
+                }
 
                 var employee = _mapper.Map<Employee>(model);
                 employee.Id = id;
@@ -183,12 +183,12 @@ namespace Company.G01.PL.Controllers
         //}
 
         [HttpGet]
-        public IActionResult Delete([FromRoute] int? id)
+        public async Task<IActionResult> Delete([FromRoute] int? id)
         {
             //if (id is null) return BadRequest("Invalid Id");
             //var department = _departmentRepsitory.Get(id.Value);
             //if (department is null) return NotFound(new { StatusCode = 404, Message = $"Department with id:{id} Not Found" });
-            return Details(id, "Delete");
+            return await Details(id, "Delete");
 
         }
 
@@ -204,6 +204,10 @@ namespace Company.G01.PL.Controllers
                 var count = _unitOfWork.Complete();
                 if (count > 0)
                 {
+                    if (employee.ImageName is not null)
+                    {
+                         DocumentSettings.DeleteFile(employee.ImageName , "images");
+                    }
                     return RedirectToAction(nameof(Index));
                 }
 

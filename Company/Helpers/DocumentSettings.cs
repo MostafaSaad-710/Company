@@ -18,7 +18,7 @@
 
             // 2. Get File Name And make it unique
 
-            var fileName = $"{Guid.NewGuid()}{file.Name}";
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
             // File Path
 
