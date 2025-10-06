@@ -51,6 +51,10 @@ namespace Company.G01.PL
                              .AddEntityFrameworkStores<CompanyDbContext>();
 
 
+            builder.Services.ConfigureApplicationCookie(config =>
+            {
+                config.LoginPath = "/Account/SignIn";
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -66,11 +70,15 @@ namespace Company.G01.PL
 
             app.UseRouting();
 
+            app.UseAuthentication();
 
+
+
+            app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Department}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
