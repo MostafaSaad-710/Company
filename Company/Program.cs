@@ -2,8 +2,10 @@ using Company.BLL;
 using Company.BLL.Interfaces;
 using Company.BLL.Repositories;
 using Company.DAL.Data.Contexts;
+using Company.DAL.Models;
 using Company.Mapping;
 using Company.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -29,10 +31,7 @@ namespace Company.G01.PL
                 builder.Configuration.GetConnectionString("DefaultConnection")
             ));
 
-            builder.Services.AddAutoMapper(typeof(EmployeeProfile));
-            //builder.Services.AddAutoMapper(M => M.AddProfile(new EmployeeProfile()));
-
-
+            
 
             // Life Time
             //builder.Services.AddScoped();     // Create Object Life Time Per Request – UnReachable Object
@@ -42,6 +41,14 @@ namespace Company.G01.PL
             builder.Services.AddScoped<IScopedService, ScopedService>();  // Per Request
             builder.Services.AddTransient<ITransentService, TransentService>(); //Per Operation
             builder.Services.AddSingleton<ISingletolService, SingletolService>(); //Per App
+
+
+            builder.Services.AddAutoMapper(typeof(EmployeeProfile));
+            //builder.Services.AddAutoMapper(M => M.AddProfile(new EmployeeProfile()));
+
+
+            builder.Services.AddIdentity<AppUser, IdentityRole>()
+                             .AddEntityFrameworkStores<CompanyDbContext>();
 
 
             var app = builder.Build();
