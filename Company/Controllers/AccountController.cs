@@ -79,8 +79,6 @@ namespace Company.Controllers
 
         #endregion
 
-
-
         #region SignIn
         [HttpGet]
         public IActionResult SignIn()
@@ -119,10 +117,35 @@ namespace Company.Controllers
 
         #endregion
 
-
-
         #region SugnOut
 
         #endregion
+
+        #region Forget Password
+
+        [HttpGet]
+        public ActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> SendResetPasswordUrl( ForgetPasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user is not null)
+                {
+                    // Denf 
+                }
+
+            }
+            ModelState.AddModelError("", "Invalid Reset Password Operation !!");
+            return View("ForgetPassword" , model);
+        }
+
+        #endregion
+
     }
 }
