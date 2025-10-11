@@ -1,5 +1,6 @@
 ﻿using Company.DAL.Models;
 using Company.Dots;
+using Company.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -137,7 +138,28 @@ namespace Company.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user is not null)
                 {
-                    // Denf 
+                    //Create URL
+
+                    var token =await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                    var url = Url.Action("ResetPassword","Account", new {email = model.Email , token } , Request.Scheme);
+
+
+                    // Create Email
+                    var email = new Email()
+                    {
+                        To = model.Email,
+                        Subject = "Reset Password",
+                        Body = url
+                    };
+
+
+                    // Sent Email 
+                    var flag = EmailSettings.SendEmail(email);
+                    if(flag)
+                    {
+                        //Ceck Your Inbox
+                    }
                 }
 
             }
