@@ -159,6 +159,7 @@ namespace Company.Controllers
                     if(flag)
                     {
                         //Ceck Your Inbox
+                        return RedirectToAction("CheckYourInbox");
                     }
                 }
 
@@ -166,8 +167,51 @@ namespace Company.Controllers
             ModelState.AddModelError("", "Invalid Reset Password Operation !!");
             return View("ForgetPassword" , model);
         }
+        [HttpGet]
+        public IActionResult CheckYourInbox()
+        {
+            return View();
+        }
 
         #endregion
+
+        #region Reset Password
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email , string token)
+        {
+            TempData["email"] = email;
+            TempData["token"] = token;
+
+            return View();
+        }//
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+        {
+            if(ModelState.IsValid)
+            {
+                var email = TempData["email"] as string;
+                var token = TempData["token"] as string;
+
+                if (email is null || token is null) return BadRequest("Invalid operation");
+                var user =  await _userManager.FindByEmailAsync(email);
+                if(user is not null)
+                {
+                    var resulr = await _userManager.ResetPasswordAsync(user , token , model.NewPassword);
+                    if(resulr.Succeeded)
+                    {
+                        return RedirectToAction("SignIn");
+                    }
+                }
+
+                ModelState.AddModelError("", "Invalid Reset Password Operation");
+
+            }
+            return View();
+        }
+        #endregion
+
 
     }
 }
